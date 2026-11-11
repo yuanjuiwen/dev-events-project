@@ -1,5 +1,8 @@
+import { SeverityNumber } from "@opentelemetry/api-logs";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { after } from "next/server";
+import { posthogLogger } from "../instrumentation";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -18,6 +21,14 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
+  after(() => {
+    posthogLogger?.emit({
+      body: "Application shell rendered",
+      severityNumber: SeverityNumber.INFO,
+      attributes: { render_target: "root_layout" },
+    });
+  });
+
   return (
     <html
       lang="en"
